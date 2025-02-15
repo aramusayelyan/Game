@@ -82,6 +82,19 @@
         let currentQuestion = 0;
         let score = 0;
         let results = [];
+        let email = null;
+
+        function askEmail() {
+            const emailPrompt = `<div class="question">Խնդրում ենք մուտքագրել ձեր էլ. հասցեն (պահանջ չի գործում):</div>
+            <input type="email" id="email" placeholder="Ձեր էլ. հասցեն" style="padding: 10px; width: 80%; margin: 10px 0;">
+            <button onclick="startGame()">Շարունակել</button>`;
+            document.getElementById("game").innerHTML = emailPrompt;
+        }
+
+        function startGame() {
+            email = document.getElementById("email").value || "Անհայտ";
+            loadQuestion();
+        }
 
         function loadQuestion() {
             if (currentQuestion >= questions.length) {
@@ -98,7 +111,7 @@
             let html = `<div class='question'>${q.question}</div>`;
             html += "<div class='options'>";
             q.options.forEach((option, index) => {
-                html += `<button onclick='checkAnswer(${index})' aria-label='${option}'>${option}</button>`;
+                html += `<button onclick='checkAnswer(${index})'>${option}</button>`;
             });
             html += "</div>";
             document.getElementById("game").innerHTML = html;
@@ -107,18 +120,26 @@
         function checkAnswer(selected) {
             const q = questions[currentQuestion];
             const buttons = document.querySelectorAll(".options button");
+            
             buttons.forEach((button, index) => {
-                if (index === q.correct) button.classList.add("correct");
-                else if (index === selected) button.classList.add("incorrect");
+                if (index === q.correct) {
+                    button.classList.add("correct");
+                } else if (index === selected) {
+                    button.classList.add("incorrect");
+                }
                 button.disabled = true;
             });
+            
             if (selected === q.correct) score++;
             results.push({ question: q.question, selectedAnswer: q.options[selected], correct: selected === q.correct });
-            currentQuestion++; 
-            loadQuestion(); 
+            
+            setTimeout(() => { 
+                currentQuestion++; 
+                loadQuestion(); 
+            }, 1000);
         }
 
-        loadQuestion();
+        askEmail();
     </script>
 </body>
 </html>
