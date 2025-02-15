@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Բառերի Խաղ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .game-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: inline-block;
+            width: 80%;
+            max-width: 500px;
+        }
+        .question {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .options button {
+            display: block;
+            margin: 8px auto;
+            padding: 12px;
+            width: 100%;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+            text-transform: capitalize;
+        }
+        .options button:hover {
+            transform: scale(1.05);
+        }
+        .correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .incorrect {
+            background-color: #E74C3C;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Արցախյան Բառերի Խաղ</h1>
+    <div class="game-container" id="game"></div>
+    <script>
+        const questions = [
+            { phase: 1, question: "Ո՞րն է Ըլբաստրակ բառի գրական հայերեն տարբերակը", options: ["Հնդկահավ", "Նապաստակ", "Շուն"], correct: 1 },
+            { phase: 1, question: "Ո՞րն է Գյաբա բառի գրական հայերեն տարբերակը", options: ["Գորգ", "Վերմակ", "Սրբիչ"], correct: 0 },
+            { phase: 1, question: "Ո՞րն է Մըսլըհաթ բառի գրական հայերեն տարբերակը", options: ["Կռվել", "Խորհրդակցել", "Մտածել"], correct: 1 },
+            { phase: 1, question: "Ո՞րն է Այա բառի գրական հայերեն տարբերակը", options: ["Հայրիկ", "Պապիկ", "Տատիկ"], correct: 2 },
+            { phase: 1, question: "Ո՞րն է Իրես բառի գրական հայերեն տարբերակը", options: ["Դեմք", "Ականջ", "Քիթ"], correct: 0 },
+            { phase: 1, question: "Ո՞րն է Տակռե բառի գրական հայերեն տարբերակը", options: ["Արմատ", "Կեղև", "Տերև"], correct: 0 },
+            { phase: 2, question: "Ո՞րն է Թոռ բառի գրական հայերեն տարբերակը", options: ["Արև", "Ձյուն", "Անձրև"], correct: 2 },
+            { phase: 2, question: "Ո՞րն է Կուճի բառի գրական հայերեն տարբերակը", options: ["Մեծ", "Փոքր", "Երկար"], correct: 1 },
+            { phase: 2, question: "Ո՞րն է Ղոնաղ բառի գրական հայերեն տարբերակը", options: ["Հյուր", "Ընկեր", "Հարևան"], correct: 0 },
+            { phase: 2, question: "Ո՞րն է Իրիքնակ բառի գրական հայերեն տարբերակը", options: ["Լուսին", "Աշխարհ", "Արեգակ"], correct: 2 },
+            { phase: 2, question: "Ո՞րն է Քյոմագ բառի գրական հայերեն տարբերակը", options: ["Փորձանք", "Դժբախտություն", "Օգնություն"], correct: 2 },
+            { phase: 3, question: "Ո՞րն է Խոնչա բառի գրական հայերեն տարբերակը", options: ["Ափսե", "Սկուտեղ", "Կաթսա"], correct: 1 },
+            { phase: 3, question: "Ո՞րն է Բուլդուշկա բառի գրական հայերեն տարբերակը", options: ["Բաժակ", "Թեյի ափսե", "Թեյնիկ"], correct: 1 },
+            { phase: 3, question: "Ո՞րն է Փըսունգու բառի գրական հայերեն տարբերակը", options: ["Մրրիկ", "Ձյունախառը փոթորիկ", "Տոռնադո"], correct: 1 },
+            { phase: 3, question: "Ո՞րն է Ղուրդալի բառի գրական հայերեն տարբերակը", options: ["Ցորեն", "Եգիպտացորեն", "Բրինձ"], correct: 1 },
+            { phase: 3, question: "Ո՞րն է Թութաջաղ բառի գրական հայերեն տարբերակը", options: ["Գոգնոց", "Ձեռնոց", "Բռնիչ"], correct: 2 },
+            { phase: 3, question: "Ո՞րն է Ակլակոզան բառի գրական հայերեն տարբերակը", options: ["Զատիկ", "Մրջյուն", "Խխունջ"], correct: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let results = [];
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                const gameData = JSON.stringify(results, null, 2);
+                const blob = new Blob([gameData], { type: "application/json" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "game_results.json";
+                link.click();
+                document.getElementById("game").innerHTML = `<h2>Խաղն ավարտվեց!</h2><p>Ձեր վերջնական միավորները: ${score}</p>`;
+                return;
+            }
+            const q = questions[currentQuestion];
+            let html = `<div class='question'>${q.question}</div>`;
+            html += "<div class='options'>";
+            q.options.forEach((option, index) => {
+                html += `<button onclick='checkAnswer(${index})' aria-label='${option}'>${option}</button>`;
+            });
+            html += "</div>";
+            document.getElementById("game").innerHTML = html;
+        }
+
+        function checkAnswer(selected) {
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll(".options button");
+            buttons.forEach((button, index) => {
+                if (index === q.correct) button.classList.add("correct");
+                else if (index === selected) button.classList.add("incorrect");
+                button.disabled = true;
+            });
+            if (selected === q.correct) score++;
+            results.push({ question: q.question, selectedAnswer: q.options[selected], correct: selected === q.correct });
+            currentQuestion++; 
+            loadQuestion(); 
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
